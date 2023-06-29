@@ -1,6 +1,6 @@
 """PromptLayer wrapper."""
 import datetime
-from typing import List, Optional
+from typing import Any, List, Mapping, Optional
 
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForLLMRun,
@@ -20,6 +20,7 @@ class PromptLayerChatOpenAI(ChatOpenAI):
 
     All parameters that can be passed to the OpenAI LLM can also
     be passed here. The PromptLayerChatOpenAI adds to optional
+
     parameters:
         ``pl_tags``: List of strings to tag the request with.
         ``return_pl_id``: If True, the PromptLayer request ID will be
@@ -41,6 +42,7 @@ class PromptLayerChatOpenAI(ChatOpenAI):
         messages: List[BaseMessage],
         stop: Optional[List[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
+        **kwargs: Any
     ) -> ChatResult:
         """Call ChatOpenAI generate and then call PromptLayer API to log the request."""
         from promptlayer.utils import get_api_key, promptlayer_api_request
@@ -53,6 +55,7 @@ class PromptLayerChatOpenAI(ChatOpenAI):
             response_dict, params = super()._create_message_dicts(
                 [generation.message], stop
             )
+            params = {**params, **kwargs}
             pl_request_id = promptlayer_api_request(
                 "langchain.PromptLayerChatOpenAI",
                 "langchain",
@@ -78,6 +81,7 @@ class PromptLayerChatOpenAI(ChatOpenAI):
         messages: List[BaseMessage],
         stop: Optional[List[str]] = None,
         run_manager: Optional[AsyncCallbackManagerForLLMRun] = None,
+        **kwargs: Any
     ) -> ChatResult:
         """Call ChatOpenAI agenerate and then call PromptLayer to log."""
         from promptlayer.utils import get_api_key, promptlayer_api_request_async
@@ -90,6 +94,7 @@ class PromptLayerChatOpenAI(ChatOpenAI):
             response_dict, params = super()._create_message_dicts(
                 [generation.message], stop
             )
+            params = {**params, **kwargs}
             pl_request_id = await promptlayer_api_request_async(
                 "langchain.PromptLayerChatOpenAI.async",
                 "langchain",
@@ -109,3 +114,15 @@ class PromptLayerChatOpenAI(ChatOpenAI):
                     generation.generation_info = {}
                 generation.generation_info["pl_request_id"] = pl_request_id
         return generated_responses
+
+    @property
+    def _llm_type(self) -> str:
+        return "promptlayer-openai-chat"
+
+    @property
+    def _identifying_params(self) -> Mapping[str, Any]:
+        return {
+            **super()._identifying_params,
+            "pl_tags": self.pl_tags,
+            "return_pl_id": self.return_pl_id,
+        }

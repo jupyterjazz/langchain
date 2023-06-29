@@ -11,6 +11,7 @@ _EXPECTED = [
     "ConversationalChatAgent",
     "LLMSingleActionAgent",
     "MRKLChain",
+    "OpenAIFunctionsAgent",
     "ReActChain",
     "ReActTextWorldAgent",
     "SelfAskWithSearchChain",
@@ -24,17 +25,16 @@ _EXPECTED = [
     "create_pbi_agent",
     "create_pbi_chat_agent",
     "create_spark_dataframe_agent",
+    "create_spark_sql_agent",
     "create_sql_agent",
     "create_vectorstore_agent",
     "create_vectorstore_router_agent",
     "get_all_tool_names",
     "initialize_agent",
     "load_agent",
+    "load_huggingface_tool",
     "load_tools",
     "tool",
-    "PlanAndExecute",
-    "load_chat_planner",
-    "load_agent_executor",
 ]
 
 
